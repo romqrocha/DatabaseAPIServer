@@ -1,5 +1,5 @@
 import DB from '../db.js'
-import { CHECK_IF_TABLE_EXISTS, CREATE_PATIENTS_TABLE, INSERT_ENTRY_TEMPLATE_QUERY, QUERY_VALUE_PLACEHOLDER, VARIABLE_LENGTH_VALUES_DEFAULT_PLACEHOLDER } from './queries.js'
+import { CHECK_IF_TABLE_EXISTS, CREATE_PATIENTS_TABLE, INSERT_ENTRY_TEMPLATE_QUERY, QUERY_VALUE_PLACEHOLDER, VARIABLE_LENGTH_VALUES_DEFAULT_PLACEHOLDER, SELECT_PATIENTS_BY_IDS_QUERY } from './queries.js'
 import { patientsTableName } from './schema.js';
 
 /**
@@ -30,6 +30,7 @@ export class PatientsRepository {
   /**
    * Create multiple patient entries in the patients db.
    * @param {Patient[]} patients the list of patients to create in db.
+   * @returns {Promise<Patient[]>} the list of patients created in the database
    */
   async createPatients(patients) {
     const queryPlaceholderValues = new Array(patients.length)
@@ -49,7 +50,24 @@ export class PatientsRepository {
 
     const patientsFormatted = patients.flatMap(patient => [patient.patientName, patient.patientDateOfBirth]);
 
-    await DB.executeQueryTemplate(queryTemplateStr, patientsFormatted);
+    const [insertResult] = await DB.executeQueryTemplate(queryTemplateStr, patientsFormatted);
+
+    // get the IDs of the inserted patients
+    const firstInsertId = insertResult.insertId;
+    const patientIds = Array.from({length: patients.length}, (_, i) => firstInsertId + i);
+    
+    const idPlaceholders = patientIds.map(() => QUERY_VALUE_PLACEHOLDER).join(', ');
+    const getPatientsByIdsQuery = SELECT_PATIENTS_BY_IDS_QUERY.replace(VARIABLE_LENGTH_VALUES_DEFAULT_PLACEHOLDER, idPlaceholders);
+    
+    // retrieve the created patients
+    const [rows] = await DB.executeQueryTemplate(getPatientsByIdsQuery, patientIds);
+
+    const patients = rows.map(row => ({
+      patientName: row.patientName,
+      patientDateOfBirth: row.patientDateOfBirth
+    }));
+    
+    return patients;
   }
 
   /**

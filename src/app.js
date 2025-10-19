@@ -26,7 +26,8 @@ app.listen(port, () => {
 //   ];
 
 //   try {
-//     await patientsRepository.createPatients(patients);
+//     const patientsResponse = await patientsRepository.createPatients(patients);
+//     console.log("Patients: ", patientsResponse);
 //   }
 //   catch (error) {
 //     const { code, message } = HttpError.extractErrorCodeAndMessage(error);
@@ -35,4 +36,4 @@ app.listen(port, () => {
 //   }
 // }
 
-//testDataAccessLayerAndDb();
+// testDataAccessLayerAndDb();

@@ -23,3 +23,10 @@ SELECT COUNT(*) AS count
 FROM INFORMATION_SCHEMA.TABLES
 WHERE TABLE_NAME = ${QUERY_VALUE_PLACEHOLDER}
 `;
+
+export const SELECT_PATIENTS_BY_IDS_QUERY = 
+`
+SELECT patientId, name as patientName, dateOfBirth as patientDateOfBirth
+FROM ${patientsTableName}
+WHERE patientId IN (${VARIABLE_LENGTH_VALUES_DEFAULT_PLACEHOLDER})
+`;
