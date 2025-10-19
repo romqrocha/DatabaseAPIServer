@@ -1,6 +1,6 @@
 import { HttpError } from '../errors/httpError.js';
 import { HTTP_STATUS_CODES } from '../constants/httpResponse.js';
-import { EMPTY_QUERY_ERROR, UNALLOWED_QUERY_COMMAND_ENTERED_ERROR } from '../lang/en/errors.js';
+import { EMPTY_QUERY_ERROR, INVALID_SQL_QUERY_ERROR, UNALLOWED_QUERY_COMMAND_ENTERED_ERROR } from '../lang/en/errors.js';
 import mysql from 'mysql2/promise'
 
 export default class DB {
