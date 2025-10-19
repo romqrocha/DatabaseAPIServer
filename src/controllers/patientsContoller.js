@@ -83,4 +83,38 @@ export default class PatientsController {
       this.handleError(error);
     }
   }
+
+  /**
+   * @param {http.IncomingMessage} req 
+   * @param {http.ServerResponse<http.IncomingMessage>} res 
+   */
+  bulkCreatePatients = (req, res) => {
+    try {
+      let body = [];
+
+      req.on("data", (chunk) => {
+        if (chunk !== null) {
+          body.push(chunk);
+        }
+      });
+
+      req.on("end", async () => {
+        body = Buffer.concat(body).toString();
+
+        const params = new URLSearchParams(body);
+        const kvpArray = params.entries();
+        const patients = Object.fromEntries(kvpArray);
+
+        res.writeHead(
+          HTTP_STATUS_CODES.OK, 
+          { "Content-Type": CONTENT_TYPE.JSON },
+          { "Access-Control-Allow-Origin": ALLOWED_ORIGINS }
+        );
+        res.end(JSON.stringify(patients));
+      });
+    }
+    catch (error) {
+      this.handleError(error, res);
+    }
+  }
 }
