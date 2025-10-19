@@ -8,7 +8,7 @@ const patientsController = new PatientsController();
 const app = new CustomExpress();
 
 app.get("/api/sqlquery", patientsController.select); //todo
-app.post("api/sqlquery", patientsController.insert); //todo
+app.post("/api/sqlquery", patientsController.insert); //todo
 
 app.listen(port, () => {
   console.log(`Server running on port ${port} - http://localhost:${port}`);

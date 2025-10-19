@@ -26,7 +26,7 @@ export default class PatientsController {
       { "Access-Control-Allow-Origin": ALLOWED_ORIGINS }
     );
     res.end(jsonStr)
-}
+  }
   
   /**
    * Handles SELECT queries through get requests
@@ -39,14 +39,20 @@ export default class PatientsController {
       const userQuery = urlParams.query["query"];
 
       this.repository.executeClientCreatedQuery(userQuery).then((queryResult, fieldPacket) => {
-        const jsonStr = JSON.stringify(queryResult);
+        const [rows] = queryResult;
+
+        const patientRows = rows.map(row => ({
+          patientId: row.patientId,
+          patientName: row.patientName,
+          patientDateOfBirth: row.patientDateOfBirth
+        }));
 
         res.writeHead(
           HTTP_STATUS_CODES.OK, 
           { "Content-Type": CONTENT_TYPE.JSON },
           { "Access-Control-Allow-Origin": ALLOWED_ORIGINS }
         );
-        res.end(jsonStr);
+        res.end(JSON.stringify(patientRows));
       }).catch((error) => {
         this.handleError(error);
       });
