@@ -38,7 +38,7 @@ export default class DB {
       return await connection.execute(validSqlQueryString);
     }
     catch (error) {
-      console.log("ERROR IN executeQueryTemplate");
+      console.log("ERROR IN executeQueryStr");
       console.log(error);
       throw error;
     }
