@@ -35,16 +35,11 @@ export default class DB {
         port:       DB.#DB_PORT
       });
 
-      console.log("==============================================\ncreateConnection does not throw an error\n==============================================\n");
-
       return await connection.execute(validSqlQueryString);
     }
     catch (error) {
       console.log("ERROR IN executeQueryTemplate");
       console.log(error);
-
-
-
       throw error;
     }
     finally {
@@ -77,16 +72,11 @@ export default class DB {
       console.log(params);
       console.log(validSqlTemplateStr);
 
-      console.log("==============================================\ncreateConnection does not throw an error\n==============================================\n");
-
       return await connection.execute(validSqlTemplateStr, params);
     }
     catch (error) {
       console.log("ERROR IN executeQueryTemplate");
       console.log(error);
-
-
-
       throw error;
     }
     finally {
