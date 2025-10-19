@@ -14,16 +14,20 @@ export default class PatientsController {
 
   constructor() {}
 
-  handleError = (error) => {
+  handleError = (error, res) => {
     const { code, message } = HttpError.extractErrorCodeAndMessage(error);
+
+    console.log(message);
 
     const data = { errorMessage: message }
     const jsonStr = JSON.stringify(data);
 
     res.writeHead(
       code,
-      { "Content-Type": CONTENT_TYPE.JSON },
-      { "Access-Control-Allow-Origin": ALLOWED_ORIGINS }
+      { 
+        "Content-Type": CONTENT_TYPE.JSON,
+        "Access-Control-Allow-Origin": ALLOWED_ORIGINS
+      }
     );
     res.end(jsonStr)
   }
@@ -49,16 +53,18 @@ export default class PatientsController {
 
         res.writeHead(
           HTTP_STATUS_CODES.OK, 
-          { "Content-Type": CONTENT_TYPE.JSON },
-          { "Access-Control-Allow-Origin": ALLOWED_ORIGINS }
+          { 
+            "Content-Type": CONTENT_TYPE.JSON,
+            "Access-Control-Allow-Origin": ALLOWED_ORIGINS
+          }
         );
         res.end(JSON.stringify(patientRows));
       }).catch((error) => {
-        this.handleError(error);
+        this.handleError(error, res);
       });
     }
     catch (error) {
-      this.handleError(error);
+      this.handleError(error, res);
     }
   }
 
@@ -74,13 +80,15 @@ export default class PatientsController {
 
       res.writeHead(
         HTTP_STATUS_CODES.OK, 
-        { "Content-Type": CONTENT_TYPE.JSON },
-        { "Access-Control-Allow-Origin": ALLOWED_ORIGINS }
+        { 
+          "Content-Type": CONTENT_TYPE.JSON,
+          "Access-Control-Allow-Origin": ALLOWED_ORIGINS
+        }
       );
       res.end(jsonStr);
     }
     catch (error) {
-      this.handleError(error);
+      this.handleError(error, res);
     }
   }
 
@@ -107,8 +115,10 @@ export default class PatientsController {
 
         res.writeHead(
           HTTP_STATUS_CODES.OK, 
-          { "Content-Type": CONTENT_TYPE.JSON },
-          { "Access-Control-Allow-Origin": ALLOWED_ORIGINS }
+          { 
+            "Content-Type": CONTENT_TYPE.JSON,
+            "Access-Control-Allow-Origin": ALLOWED_ORIGINS
+          }
         );
         res.end(JSON.stringify(patients));
       });

@@ -51,8 +51,10 @@ export default class CustomExpress {
 
       res.writeHead(
         code,
-        { "Content-Type": CONTENT_TYPE.JSON },
-        { "Access-Control-Allow-Origin": ALLOWED_ORIGINS }
+        { 
+          "Content-Type": CONTENT_TYPE.JSON,
+          "Access-Control-Allow-Origin": ALLOWED_ORIGINS
+        }
       );
       res.end(jsonStr)
     }
