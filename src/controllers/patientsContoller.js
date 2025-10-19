@@ -75,22 +75,48 @@ export default class PatientsController {
    */
   insert = (req, res) => {
     try {
-      const data = {};
-      const jsonStr = JSON.stringify(data);
+      let body = [];
 
-      res.writeHead(
-        HTTP_STATUS_CODES.OK, 
-        { 
-          "Content-Type": CONTENT_TYPE.JSON,
-          "Access-Control-Allow-Origin": ALLOWED_ORIGINS
+      req.on("data", (chunk) => {
+        if (chunk !== null) {
+          body.push(chunk);
         }
-      );
-      res.end(jsonStr);
+      });
+
+      req.on("end", async () => {
+        body = Buffer.concat(body).toString();
+
+        const params = new URLSearchParams(body);
+        const kvpArray = params.entries();
+        const userQuery = Object.fromEntries(kvpArray).query;
+
+        this.repository.executeClientCreatedQuery(userQuery).then((queryResult, fieldPacket) => {
+          const [rows] = queryResult;
+
+          const patientRows = rows.map(row => ({
+            patientId: row.patientId,
+            patientName: row.patientName,
+            patientDateOfBirth: row.patientDateOfBirth
+          }));
+
+          res.writeHead(
+            HTTP_STATUS_CODES.CREATED, 
+            { 
+              "Content-Type": CONTENT_TYPE.JSON,
+              "Access-Control-Allow-Origin": ALLOWED_ORIGINS
+            }
+          );
+          res.end(JSON.stringify(patientRows));
+        }).catch((error) => {
+          this.handleError(error, res);
+        });
+      });
     }
     catch (error) {
       this.handleError(error, res);
     }
   }
+  
 
   /**
    * @param {http.IncomingMessage} req 
