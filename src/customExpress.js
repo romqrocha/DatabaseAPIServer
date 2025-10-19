@@ -1,8 +1,8 @@
 import * as http from 'http';
-import { HttpError } from "./errors/httpError.js";
-import { HTTP_ERRORS } from "./lang/messages/en/errors.js";
 import { CONTENT_TYPE, HTTP_STATUS_CODES } from "./constants/httpResponse.js";
 import { ALLOWED_ORIGINS } from "./constants/allowedOrigins.js";
+import { HTTP_ERRORS } from './lang/en/errors.js';
+import { HttpError } from './errors/httpError.js';
 
 export default class CustomExpress {
 
@@ -20,12 +20,12 @@ export default class CustomExpress {
 
   // Add the handler to the current list of handlers for that endpoint and http method combination
   get = (endpoint, handler) => {
-    const endpointGetId = `${endpoint}${CustomExpress.#ENDPOINT_ID_DELIMITER}${GET}`;
+    const endpointGetId = `${endpoint}${CustomExpress.#ENDPOINT_ID_DELIMITER}${CustomExpress.#GET}`;
     CustomExpress.#ROUTES.set(endpointGetId, handler);
   }
 
   post = (endpoint, handler) => {
-    const endpointPostId = `${endpoint}${CustomExpress.#ENDPOINT_ID_DELIMITER}${POST}`;
+    const endpointPostId = `${endpoint}${CustomExpress.#ENDPOINT_ID_DELIMITER}${CustomExpress.#POST}`;
     CustomExpress.#ROUTES.set(endpointPostId, handler);
   }
 

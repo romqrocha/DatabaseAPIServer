@@ -1,0 +1,26 @@
+name: "lab_5_db"
+services:
+  mysql_db:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: Lab
+      MYSQL_USER: lab5
+      MYSQL_PASSWORD: lab5verysecretpassword
+      MYSQL_ROOT_PASSWORD: lab5verysecretpassword 
+    ports:
+      - 3307:3306
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      
+  adminer:
+    image: adminer
+    restart: always
+    depends_on:
+      mysql_db:
+        condition: service_healthy
+    ports:
+      - 8080:8080

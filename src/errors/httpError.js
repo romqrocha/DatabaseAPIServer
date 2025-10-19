@@ -1,5 +1,5 @@
 import { HTTP_STATUS_CODES } from "../constants/httpResponse.js";
-import { HTTP_ERRORS } from "../lang/messages/en/errors.js";
+import { HTTP_ERRORS } from "../lang/en/errors.js";
 
 
 export class HttpError extends Error {
