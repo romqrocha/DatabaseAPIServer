@@ -4,6 +4,7 @@ import { patientsTableName } from './schema.js';
 
 /**
  * @typedef {Object} Patient
+ * @property {string | undefined} patientId
  * @property {string} patientName
  * @property {Date} patientDateOfBirth
 */
@@ -63,6 +64,7 @@ export class PatientsRepository {
     const [rows] = await DB.executeQueryTemplate(getPatientsByIdsQuery, patientIds);
 
     const patients = rows.map(row => ({
+      patientId: row.patientId,
       patientName: row.patientName,
       patientDateOfBirth: row.patientDateOfBirth
     }));
