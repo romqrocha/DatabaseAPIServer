@@ -3,15 +3,15 @@ import PatientsController from "./controllers/patientsContoller.js"
 import { PatientsRepository } from "./data-access/patient/patientsRepository.js";
 import { HttpError } from "./errors/httpError.js";
 
-// const patientsController = new PatientsController();
-// const app = new CustomExpress();
+const patientsController = new PatientsController();
+const app = new CustomExpress();
 
-// app.get("/api/patients", patientsController.getPatientsByIds);
-// app.post("api/patients", patientsController.bulkCreatePatients);
+app.get("/api/patients", patientsController.getPatientsByIds);
+app.post("api/patients", patientsController.bulkCreatePatients);
 
-// app.listen(PORT, () => {
-//   console.log(`Server running on port ${PORT} - http://localhost:${PORT}`);
-// });
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT} - http://localhost:${PORT}`);
+});
 
 // todo - remove after implementing server
 async function testDataAccessLayerAndDb() {
