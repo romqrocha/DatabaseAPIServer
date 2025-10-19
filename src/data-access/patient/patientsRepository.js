@@ -63,13 +63,13 @@ export class PatientsRepository {
     // retrieve the created patients
     const [rows] = await DB.executeQueryTemplate(getPatientsByIdsQuery, patientIds);
 
-    const patients = rows.map(row => ({
+    const patientsFromDb = rows.map(row => ({
       patientId: row.patientId,
       patientName: row.patientName,
       patientDateOfBirth: row.patientDateOfBirth
     }));
     
-    return patients;
+    return patientsFromDb;
   }
 
   /**
