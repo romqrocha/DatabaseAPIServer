@@ -6,11 +6,11 @@ import mysql from 'mysql2/promise'
 export default class DB {
 
   //todo remove the || "" for all except localhost in deployment
-  static #DB_HOST = process.env.DB_HOST || 'localhost';
-  static #DB_USER = process.env.DB_USER || "lab5";
-  static #DB_PASSWORD = process.env.DB_PASSWORD || "lab5verysecretpassword";
-  static #DB = process.env.DB || "Lab";
-  static #DB_PORT = process.env.DB_PORT || 3307;
+  static #DB_HOST = process.env.DB_HOST;
+  static #DB_USER = process.env.DB_USER;
+  static #DB_PASSWORD = process.env.DB_PASSWORD;
+  static #DB = process.env.DB;
+  static #DB_PORT = process.env.DB_PORT;
 
   static #UNALLOWED_CHAR_INPUTS = /;|"|--|\*\*\*.*?\*\*\*/;
   static #UNALLOWED_SQL_COMMANDS = /\b(ALTER|DROP|DELETE|GRANT|REVOKE|TRUNCATE|UPDATE)\b/i;
