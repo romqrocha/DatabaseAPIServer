@@ -22,8 +22,6 @@ export default class PatientsController {
   handleError = (error, res) => {
     const { code, message } = HttpError.extractErrorCodeAndMessage(error);
 
-    console.log(message);
-
     const data = { errorMessage: message }
     const jsonStr = JSON.stringify(data);
 
@@ -53,8 +51,8 @@ export default class PatientsController {
 
       const patientRows = rows.map(row => ({
         patientId: row.patientId,
-        patientName: row.patientName,
-        patientDateOfBirth: row.patientDateOfBirth
+        name: row.name,
+        dateOfBirth: row.dateOfBirth
       }));
 
       res.writeHead(
@@ -121,7 +119,6 @@ export default class PatientsController {
           res.end(jsonResData);
         }
         catch (error) {
-          console.log(error)
           this.handleError(error, res);
         }
       });

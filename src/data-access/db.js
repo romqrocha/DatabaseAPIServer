@@ -5,13 +5,6 @@ import mysql from 'mysql2/promise'
 
 export default class DB {
 
-  //todo remove the || "" for all except localhost in deployment
-  static #DB_HOST = process.env.DB_HOST;
-  static #DB_USER = process.env.DB_USER;
-  static #DB_PASSWORD = process.env.DB_PASSWORD;
-  static #DB = process.env.DB;
-  static #DB_PORT = process.env.DB_PORT;
-
   static #UNALLOWED_CHAR_INPUTS = /;|"|--|\*\*\*.*?\*\*\*/;
   static #UNALLOWED_SQL_COMMANDS = /\b(ALTER|DROP|DELETE|GRANT|REVOKE|TRUNCATE|UPDATE)\b/i;
 
@@ -30,11 +23,11 @@ export default class DB {
     let connection;
     try {
       connection = await mysql.createConnection({
-        host:       DB.#DB_HOST,
-        user:       DB.#DB_USER,
-        password :  DB.#DB_PASSWORD,
-        database :  DB.#DB,
-        port:       DB.#DB_PORT
+        host:       process.env.DB_HOST,
+        user:       process.env.DB_USER,
+        password :  process.env.DB_PASSWORD,
+        database :  process.env.DB,
+        port:       process.env.DB_PORT
       });
 
       const dbResult = await connection.execute(validSqlQueryString);
@@ -67,11 +60,11 @@ export default class DB {
     let connection;
     try {
       connection = await mysql.createConnection({
-        host:       DB.#DB_HOST,
-        user:       DB.#DB_USER,
-        password :  DB.#DB_PASSWORD,
-        database :  DB.#DB,
-        port:       DB.#DB_PORT
+        host:       process.env.DB_HOST,
+        user:       process.env.DB_USER,
+        password :  process.env.DB_PASSWORD,
+        database :  process.env.DB,
+        port:       process.env.DB_PORT
       });
 
       const dbResult = await connection.execute(validSqlTemplateStr, params);

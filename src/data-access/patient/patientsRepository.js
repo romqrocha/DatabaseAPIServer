@@ -5,8 +5,8 @@ import { patientsTableName } from './schema.js';
 /**
  * @typedef {Object} Patient
  * @property {string | undefined} patientId
- * @property {string} patientName
- * @property {Date} patientDateOfBirth
+ * @property {string} name
+ * @property {Date} dateOfBirth
 */
 
 /**
@@ -65,8 +65,8 @@ export class PatientsRepository {
 
     const patientRows = rows.map(row => ({
       patientId: row.patientId,
-      patientName: row.patientName,
-      patientDateOfBirth: row.patientDateOfBirth
+      name: row.name,
+      dateOfBirth: row.dateOfBirth
     }));
     
     return patientRows;
