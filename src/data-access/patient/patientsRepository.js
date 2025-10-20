@@ -82,6 +82,7 @@ export class PatientsRepository {
       await DB.executeQueryStr(CREATE_PATIENTS_TABLE);
     }
     
-    return await DB.executeQueryStr(unsanitizedQueryString);
+    const dbQueryResult = await DB.executeQueryStr(unsanitizedQueryString);
+    return dbQueryResult;
   }
 }

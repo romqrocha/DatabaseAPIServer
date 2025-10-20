@@ -10,9 +10,14 @@ import { PatientsRepository } from '../data-access/patient/patientsRepository.js
 
 
 export default class PatientsController {
-  repository = new PatientsRepository();
 
-  constructor() {}
+  static #SQL_QUERY_KEY = "sqlQuery";
+
+  #patientsRepository;
+
+  constructor() {
+    this.#patientsRepository = new PatientsRepository();
+  }
 
   handleError = (error, res) => {
     const { code, message } = HttpError.extractErrorCodeAndMessage(error);
@@ -26,7 +31,7 @@ export default class PatientsController {
       code,
       { 
         "Content-Type": CONTENT_TYPE.JSON,
-        "Access-Control-Allow-Origin": ALLOWED_ORIGINS
+        "Access-Control-Allow-Origin": ALLOWED_ORIGINS,
       }
     );
     res.end(jsonStr)
@@ -37,31 +42,29 @@ export default class PatientsController {
    * @param {http.IncomingMessage} req 
    * @param {http.ServerResponse<http.IncomingMessage>} res 
    */
-  select = (req, res) => {
+  select = async (req, res) => {
     try {
       const urlParams = url.parse(req.url, true);
-      const userQuery = urlParams.query["query"];
+      const sqlQuery = urlParams.query[PatientsController.#SQL_QUERY_KEY];
 
-      this.repository.executeClientCreatedQuery(userQuery).then((queryResult, fieldPacket) => {
-        const [rows] = queryResult;
+      const queryResult = await this.#patientsRepository.executeClientCreatedQuery(sqlQuery);
 
-        const patientRows = rows.map(row => ({
-          patientId: row.patientId,
-          patientName: row.patientName,
-          patientDateOfBirth: row.patientDateOfBirth
-        }));
+      const [rows] = queryResult;
 
-        res.writeHead(
-          HTTP_STATUS_CODES.OK, 
-          { 
-            "Content-Type": CONTENT_TYPE.JSON,
-            "Access-Control-Allow-Origin": ALLOWED_ORIGINS
-          }
-        );
-        res.end(JSON.stringify(patientRows));
-      }).catch((error) => {
-        this.handleError(error, res);
-      });
+      const patientRows = rows.map(row => ({
+        patientId: row.patientId,
+        patientName: row.patientName,
+        patientDateOfBirth: row.patientDateOfBirth
+      }));
+
+      res.writeHead(
+        HTTP_STATUS_CODES.OK, 
+        { 
+          "Content-Type": CONTENT_TYPE.JSON,
+          "Access-Control-Allow-Origin": ALLOWED_ORIGINS,
+        }
+      );
+      res.end(JSON.stringify(patientRows));
     }
     catch (error) {
       this.handleError(error, res);
@@ -84,32 +87,43 @@ export default class PatientsController {
       });
 
       req.on("end", async () => {
-        body = Buffer.concat(body).toString();
+        try {
+          body = Buffer.concat(body).toString();
+          const reqData = JSON.parse(body);
 
-        const params = new URLSearchParams(body);
-        const kvpArray = params.entries();
-        const userQuery = Object.fromEntries(kvpArray).query;
+          const sqlQuery = reqData[PatientsController.#SQL_QUERY_KEY];
 
-        this.repository.executeClientCreatedQuery(userQuery).then((queryResult, fieldPacket) => {
-          const [rows] = queryResult;
+          const queryResultArr = await this.#patientsRepository.executeClientCreatedQuery(sqlQuery);
 
-          const patientRows = rows.map(row => ({
-            patientId: row.patientId,
-            patientName: row.patientName,
-            patientDateOfBirth: row.patientDateOfBirth
-          }));
+          const [queryResult] = queryResultArr;
+
+          const numAffectedRows = queryResult.affectedRows;
+          const insertId = queryResult.insertId;
+
+          // const patientRows = rows.map(row => ({
+          //   patientId: row.patientId,
+          //   patientName: row.patientName,
+          //   patientDateOfBirth: row.patientDateOfBirth
+          // }));
+
+          const jsonResData = JSON.stringify({ 
+            id: insertId, 
+            numAffectedRows: numAffectedRows 
+          });
 
           res.writeHead(
             HTTP_STATUS_CODES.CREATED, 
             { 
               "Content-Type": CONTENT_TYPE.JSON,
-              "Access-Control-Allow-Origin": ALLOWED_ORIGINS
+              "Access-Control-Allow-Origin": ALLOWED_ORIGINS,
             }
           );
-          res.end(JSON.stringify(patientRows));
-        }).catch((error) => {
+          res.end(jsonResData);
+        }
+        catch (error) {
+          console.log(error)
           this.handleError(error, res);
-        });
+        }
       });
     }
     catch (error) {
@@ -133,20 +147,23 @@ export default class PatientsController {
       });
 
       req.on("end", async () => {
-        body = Buffer.concat(body).toString();
+        try {
+          body = Buffer.concat(body).toString();
+          const patients = JSON.parse(body);
+          const patientsFromDb = await this.#patientsRepository.createPatients(patients);
 
-        const params = new URLSearchParams(body);
-        const kvpArray = params.entries();
-        const patients = Object.fromEntries(kvpArray);
-
-        res.writeHead(
-          HTTP_STATUS_CODES.OK, 
-          { 
-            "Content-Type": CONTENT_TYPE.JSON,
-            "Access-Control-Allow-Origin": ALLOWED_ORIGINS
-          }
-        );
-        res.end(JSON.stringify(patients));
+          res.writeHead(
+            HTTP_STATUS_CODES.CREATED, 
+            { 
+              "Content-Type": CONTENT_TYPE.JSON,
+              "Access-Control-Allow-Origin": ALLOWED_ORIGINS,
+            }
+          );
+          res.end(JSON.stringify(patientsFromDb));
+        }
+        catch (error) {
+          this.handleError(error, res);
+        }
       });
     }
     catch (error) {

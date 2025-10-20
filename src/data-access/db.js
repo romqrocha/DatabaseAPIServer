@@ -1,6 +1,6 @@
 import { HttpError } from '../errors/httpError.js';
 import { HTTP_STATUS_CODES } from '../constants/httpResponse.js';
-import { EMPTY_QUERY_ERROR, INVALID_SQL_QUERY_ERROR, UNALLOWED_QUERY_COMMAND_ENTERED_ERROR } from '../lang/en/errors.js';
+import { EMPTY_QUERY_ERROR, REJECTED_SQL_QUERY_ERROR, UNALLOWED_QUERY_COMMAND_ENTERED_ERROR } from '../lang/en/errors.js';
 import mysql from 'mysql2/promise'
 
 export default class DB {
@@ -10,10 +10,12 @@ export default class DB {
   static #DB_USER = process.env.DB_USER || "lab5";
   static #DB_PASSWORD = process.env.DB_PASSWORD || "lab5verysecretpassword";
   static #DB = process.env.DB || "Lab";
-  static #DB_PORT = process.env.BD_PORT || 3307;
+  static #DB_PORT = process.env.DB_PORT || 3307;
 
-  static #INVALID_CHAR_INPUTS = /;|'|"|--|\*\*\*.*?\*\*\*/;
+  static #UNALLOWED_CHAR_INPUTS = /;|"|--|\*\*\*.*?\*\*\*/;
   static #UNALLOWED_SQL_COMMANDS = /\b(ALTER|DROP|DELETE|GRANT|REVOKE|TRUNCATE|UPDATE)\b/i;
+
+  static #SQL_SERVER_CONN_REFUSED_CODE = "ECONNREFUSED";
 
   /**
    * Executes a given query string after applying sanitization and sql command restrictions.
@@ -35,12 +37,15 @@ export default class DB {
         port:       DB.#DB_PORT
       });
 
-      return await connection.execute(validSqlQueryString);
+      const dbResult = await connection.execute(validSqlQueryString);
+      return dbResult;
     }
     catch (error) {
-      console.log("ERROR IN executeQueryStr");
       console.log(error);
-      throw error;
+      if (error.code === DB.#SQL_SERVER_CONN_REFUSED_CODE) {
+        throw new HttpError(HTTP_STATUS_CODES.SERVER_ERROR, error.sqlMessage)
+      }
+      throw new HttpError(HTTP_STATUS_CODES.BAD_REQUEST, error.sqlMessage);
     }
     finally {
       if (connection) {
@@ -69,15 +74,15 @@ export default class DB {
         port:       DB.#DB_PORT
       });
 
-      console.log(params);
-      console.log(validSqlTemplateStr);
-
-      return await connection.execute(validSqlTemplateStr, params);
+      const dbResult = await connection.execute(validSqlTemplateStr, params);
+      return dbResult;
     }
     catch (error) {
-      console.log("ERROR IN executeQueryTemplate");
       console.log(error);
-      throw error;
+      if (error.code === DB.#SQL_SERVER_CONN_REFUSED_CODE) {
+        throw new HttpError(HTTP_STATUS_CODES.SERVER_ERROR, error.sqlMessage)
+      }
+      throw new HttpError(HTTP_STATUS_CODES.BAD_REQUEST, error.sqlMessage);
     }
     finally {
       if (connection) {
@@ -104,8 +109,8 @@ export default class DB {
     // - ;
     // - '
     // - "
-    if (DB.#INVALID_CHAR_INPUTS.test(unsanitizedQueryString)) {
-      throw new HttpError(HTTP_STATUS_CODES.BAD_REQUEST, INVALID_SQL_QUERY_ERROR);
+    if (DB.#UNALLOWED_CHAR_INPUTS.test(unsanitizedQueryString)) {
+      throw new HttpError(HTTP_STATUS_CODES.BAD_REQUEST, REJECTED_SQL_QUERY_ERROR);
     }
 
     const sanitizedQueryString = unsanitizedQueryString;

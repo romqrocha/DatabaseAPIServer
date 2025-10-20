@@ -8,6 +8,7 @@ export default class CustomExpress {
 
   static #GET = "GET";
   static #POST = "POST";
+  static #OPTIONS = "OPTIONS";
   static #ENDPOINT_ID_DELIMITER = "|";
   static #ROUTES = new Map();
 
@@ -26,6 +27,11 @@ export default class CustomExpress {
 
   post = (endpoint, handler) => {
     const endpointPostId = `${endpoint}${CustomExpress.#ENDPOINT_ID_DELIMITER}${CustomExpress.#POST}`;
+    CustomExpress.#ROUTES.set(endpointPostId, handler);
+  }
+
+  options = (endpoint, handler) => {
+    const endpointPostId = `${endpoint}${CustomExpress.#ENDPOINT_ID_DELIMITER}${CustomExpress.#OPTIONS}`;
     CustomExpress.#ROUTES.set(endpointPostId, handler);
   }
 
@@ -53,7 +59,8 @@ export default class CustomExpress {
         code,
         { 
           "Content-Type": CONTENT_TYPE.JSON,
-          "Access-Control-Allow-Origin": ALLOWED_ORIGINS
+          "Access-Control-Allow-Origin": ALLOWED_ORIGINS,
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
         }
       );
       res.end(jsonStr)
